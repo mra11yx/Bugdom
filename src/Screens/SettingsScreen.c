@@ -80,10 +80,16 @@ static SettingEntry gSettingEntries[] =
         {
             .ptr = &gGamePrefs.difficulty,
             .label = "Difficulty level",
-            .subtitle = "Affects damage taken",
-            .subtitleShownForValue = 1,
             .nChoices = 3,
             .choices = {"Easy", "Normal", "Git Gud, Scrub!"},
+        },
+        {
+            .ptr = &gGamePrefs.morePower,
+            .label = "Offensive mode",
+            .subtitle = "More powerful attacks",
+            .subtitleShownForValue = 1,
+            .nChoices = 2,
+            .choices = {"No", "Yes"},
         },
 //    {
 //        .ptr = &gGamePrefs.easyMode,

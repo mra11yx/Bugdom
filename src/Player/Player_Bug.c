@@ -64,6 +64,7 @@ static void TorchPlayer(void);
 #define LIMB_NUM_RIGHT_TOE_TIP		3					// joint # of right toe tip
 
 #define	MY_KICK_ENEMY_DAMAGE		.4f
+#define MORE_POWER_MULTIPLIER       (gGamePrefs.morePower ? 3 : 1)
 
 
 /*********************/
@@ -1180,48 +1181,48 @@ int			i;
 				{
 					case	SKELETON_TYPE_ANT:
 							KnockAntOnButt(kickedObj, 
-												-sin(gPlayerObj->Rot.y) * 700.0f,
-												700.0f,
-												-cos(gPlayerObj->Rot.y) * 700.0f, MY_KICK_ENEMY_DAMAGE);
+												-sin(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER,
+												700.0f * MORE_POWER_MULTIPLIER,
+												-cos(gPlayerObj->Rot.y) * 700.0f, MY_KICK_ENEMY_DAMAGE * MORE_POWER_MULTIPLIER);
 							break;
 
 					case	SKELETON_TYPE_BOXERFLY:
-							KillBoxerFly(kickedObj, -sin(gPlayerObj->Rot.y) * 700.0f,
-												700.0f,
+							KillBoxerFly(kickedObj, -sin(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER,
+												700.0f * MORE_POWER_MULTIPLIER,
 												-cos(gPlayerObj->Rot.y) * 700.0f);
 							break;
 
 					case	SKELETON_TYPE_MOSQUITO:
-							KillMosquito(kickedObj, -sin(gPlayerObj->Rot.y) * 700.0f,
-												700.0f,
+							KillMosquito(kickedObj, -sin(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER,
+												700.0f * MORE_POWER_MULTIPLIER,
 												-cos(gPlayerObj->Rot.y) * 700.0f);
 							break;
 												
 					case	SKELETON_TYPE_SPIDER:
 							KnockSpiderOnButt(kickedObj, 
-												-sin(gPlayerObj->Rot.y) * 700.0f,
-												700.0f,
-												-cos(gPlayerObj->Rot.y) * 700.0f , MY_KICK_ENEMY_DAMAGE);
+												-sin(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER,
+												700.0f * MORE_POWER_MULTIPLIER,
+												-cos(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER , MY_KICK_ENEMY_DAMAGE * MORE_POWER_MULTIPLIER);
 							break;
 
 					case	SKELETON_TYPE_FLYINGBEE:
-							KillFlyingBee(kickedObj, -sin(gPlayerObj->Rot.y) * 700.0f,
-												700.0f,
-												-cos(gPlayerObj->Rot.y) * 700.0f);
+							KillFlyingBee(kickedObj, -sin(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER,
+												700.0f * MORE_POWER_MULTIPLIER,
+												-cos(gPlayerObj->Rot.y) * 700.0f * MORE_POWER_MULTIPLIER);
 							break;
 
 					case	SKELETON_TYPE_QUEENBEE:
 							KnockQueenBeeOnButt(kickedObj, 
-												-sin(gPlayerObj->Rot.y) * 300.0f,
-												-cos(gPlayerObj->Rot.y) * 300.0f,MY_KICK_ENEMY_DAMAGE);
+												-sin(gPlayerObj->Rot.y) * 300.0f * MORE_POWER_MULTIPLIER,
+												-cos(gPlayerObj->Rot.y) * 300.0f * MORE_POWER_MULTIPLIER, MY_KICK_ENEMY_DAMAGE * MORE_POWER_MULTIPLIER);
 							break;
 
 					case	SKELETON_TYPE_ROACH:
 							KnockRoachOnButt(kickedObj, 
-												-sin(gPlayerObj->Rot.y) * 300.0f,
-												700.0f,
-												-cos(gPlayerObj->Rot.y) * 300.0f,
-												MY_KICK_ENEMY_DAMAGE);
+												-sin(gPlayerObj->Rot.y) * 300.0f * MORE_POWER_MULTIPLIER,
+												700.0f * MORE_POWER_MULTIPLIER,
+												-cos(gPlayerObj->Rot.y) * 300.0f * MORE_POWER_MULTIPLIER,
+												MY_KICK_ENEMY_DAMAGE * MORE_POWER_MULTIPLIER);
 							break;
 
 					case	SKELETON_TYPE_LARVA:
@@ -1230,8 +1231,8 @@ int			i;
 							
 					case	SKELETON_TYPE_KINGANT:
 							KnockKingAntOnButt(kickedObj, 
-												-sin(gPlayerObj->Rot.y) * 300.0f,
-												-cos(gPlayerObj->Rot.y) * 300.0f,MY_KICK_ENEMY_DAMAGE);
+												-sin(gPlayerObj->Rot.y) * 300.0f * MORE_POWER_MULTIPLIER,
+												-cos(gPlayerObj->Rot.y) * 300.0f * MORE_POWER_MULTIPLIER,MY_KICK_ENEMY_DAMAGE * MORE_POWER_MULTIPLIER);
 							break;
 
 				}

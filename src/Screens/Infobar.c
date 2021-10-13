@@ -793,7 +793,7 @@ float	amount;
 	if (gGamePrefs.difficulty == 0)						// lose less time in easy mode
 		amount = gFramesPerSecondFrac * .03f;
     else if(gGamePrefs.difficulty == 2)                 // lose more time in git gud mode
-        amount = gFramesPerSecondFrac * .25f;
+        amount = gFramesPerSecondFrac * .1f;
 	else
 		amount = gFramesPerSecondFrac * .04f;
 		

@@ -334,6 +334,7 @@ enum
 typedef struct
 {
     unsigned char difficulty;
+    Boolean morePower;
 	Boolean	playerRelativeKeys;
 	Boolean fullscreen;
 	Boolean lowDetail;
