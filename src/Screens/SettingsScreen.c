@@ -77,36 +77,20 @@ static void SettingEntry_Cycle(SettingEntry* entry, int delta)
 
 static SettingEntry gSettingEntries[] =
 {
-        {
-            .ptr = &gGamePrefs.difficulty,
-            .label = "Difficulty level",
-            .nChoices = 3,
-            .choices = {"Easy", "Normal", "Git Gud, Scrub!"},
-        },
-        {
-            .ptr = &gGamePrefs.morePower,
-            .label = "Offensive mode",
-            .subtitle = "More powerful attacks",
-            .subtitleShownForValue = 1,
-            .nChoices = 2,
-            .choices = {"No", "Yes"},
-        },
-//    {
-//        .ptr = &gGamePrefs.easyMode,
-//        .label = "Kiddie mode",
-//        .subtitle = "Player takes less damage",
-//        .subtitleShownForValue = 1,
-//        .nChoices = 2,
-//        .choices = {"No", "Yes"},
-//    },
-//    {
-//        .ptr = &gGamePrefs.gitGudMode,
-//        .label = "Git Gud mode",
-//        .subtitle = "Player takes MORE damage",
-//        .subtitleShownForValue = 1,
-//        .nChoices = 2,
-//        .choices = {"No", "Yes"},
-//    },
+    {
+        .ptr = &gGamePrefs.difficulty,
+        .label = "Difficulty level",
+        .nChoices = 3,
+        .choices = {"Easy", "Normal", "Git Gud, Scrub!"},
+    },
+    {
+        .ptr = &gGamePrefs.morePower,
+        .label = "Offensive mode",
+        .subtitle = "More powerful attacks",
+        .subtitleShownForValue = 1,
+        .nChoices = 2,
+        .choices = {"No", "Yes"},
+    },
 
 	{
 		.ptr = &gGamePrefs.mouseSensitivityLevel,
