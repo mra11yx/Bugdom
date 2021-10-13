@@ -333,8 +333,7 @@ enum
 
 typedef struct
 {
-	Boolean	easyMode;
-    Boolean gitGudMode;
+    unsigned char difficulty;
 	Boolean	playerRelativeKeys;
 	Boolean fullscreen;
 	Boolean lowDetail;

@@ -231,7 +231,7 @@ void ToolBoxInit(void)
 			/* INIT PREFERENCES */
 			
 	memset(&gGamePrefs, 0, sizeof(PrefsType));
-	gGamePrefs.easyMode				= false;	
+	gGamePrefs.difficulty			= 1;	
 	gGamePrefs.playerRelativeKeys	= false;	
 	gGamePrefs.fullscreen			= true;
 	gGamePrefs.lowDetail			= false;

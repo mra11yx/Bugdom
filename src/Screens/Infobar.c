@@ -790,8 +790,10 @@ void ProcessBallTimer(void)
 {
 float	amount;
 
-	if (gGamePrefs.easyMode)						// lose less time in easy mode
+	if (gGamePrefs.difficulty == 0)						// lose less time in easy mode
 		amount = gFramesPerSecondFrac * .03f;
+    else if(gGamePrefs.difficulty == 2)                 // lose more time in git gud mode
+        amount = gFramesPerSecondFrac * .25f;
 	else
 		amount = gFramesPerSecondFrac * .04f;
 		
@@ -1007,10 +1009,10 @@ void GetHealth(float amount)
 
 void LoseHealth(float amount)
 {
-	if (gGamePrefs.easyMode)								// lose less health in easy mode
+	if (gGamePrefs.difficulty == 0)								// lose less health in easy mode
 		amount *= .5f;
-    else if(gGamePrefs.gitGudMode && !gGamePrefs.easyMode)
-        amount *= 2.5f;
+    else if(gGamePrefs.difficulty == 2)                         // lose way more health in git gud mode
+        amount *= 5.0f;
 
 	gMyHealth -= amount;
 	if (gMyHealth <= 0.0f)	
