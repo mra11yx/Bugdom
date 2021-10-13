@@ -85,6 +85,14 @@ static SettingEntry gSettingEntries[] =
 		.nChoices = 2,
 		.choices = {"No", "Yes"},
 	},
+    {
+        .ptr = &gGamePrefs.gitGudMode,
+        .label = "Git Gud mode",
+        .subtitle = "Player takes MORE damage",
+        .subtitleShownForValue = 1,
+        .nChoices = 2,
+        .choices = {"No", "Yes"},
+    },
 
 	{
 		.ptr = &gGamePrefs.mouseSensitivityLevel,

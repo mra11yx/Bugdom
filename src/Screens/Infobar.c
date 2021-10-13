@@ -1009,6 +1009,8 @@ void LoseHealth(float amount)
 {
 	if (gGamePrefs.easyMode)								// lose less health in easy mode
 		amount *= .5f;
+    else if(gGamePrefs.gitGudMode && !gGamePrefs.easyMode)
+        amount *= 2.5f;
 
 	gMyHealth -= amount;
 	if (gMyHealth <= 0.0f)	
