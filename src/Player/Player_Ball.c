@@ -335,8 +335,9 @@ float	dx, dy;
 			gDelta.z *= 100.0f;						// boost this up really high (will get tweaked later)
 			gDelta.x *= 100.0f;
 			PlayEffect3D(EFFECT_SPEEDBOOST, &gCoord);
-			StartNitroTrail();			
-			gBallTimer -= .05f;						// lose a bit more ball time
+			StartNitroTrail();
+            if(gGamePrefs.difficulty != 3)
+                gBallTimer -= .05f;						// lose a bit more ball time unless in invincibility mode, in which case lose none
 		}
 	}
 

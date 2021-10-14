@@ -794,6 +794,8 @@ float	amount;
 		amount = gFramesPerSecondFrac * .03f;
     else if(gGamePrefs.difficulty == 2)                 // lose more time in git gud mode
         amount = gFramesPerSecondFrac * .1f;
+    else if(gGamePrefs.difficulty == 3)
+        amount = 0;                                     //don't lose any time in invincibility mode
 	else
 		amount = gFramesPerSecondFrac * .04f;
 		
@@ -1011,8 +1013,10 @@ void LoseHealth(float amount)
 {
 	if (gGamePrefs.difficulty == 0)								// lose less health in easy mode
 		amount *= .5f;
-    else if(gGamePrefs.difficulty == 2)                         // lose way more health in git gud mode
+    else if(gGamePrefs.difficulty == 2)                         // lose way more health in git gud mode - most enemies can one-shot or two-shot you
         amount *= 5.0f;
+    else if(gGamePrefs.difficulty == 3)                         // don't lose health in invincibility mode
+        amount = 0;
 
 	gMyHealth -= amount;
 	if (gMyHealth <= 0.0f)	

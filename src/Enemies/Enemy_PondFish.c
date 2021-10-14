@@ -391,7 +391,7 @@ static void SeeIfFishEatsPlayer(ObjNode *fish)
 {
 TQ3Point3D	pt;
 
-	if (gPlayerMode == PLAYER_MODE_BALL)					// can only eat the bug, not the ball
+    if (gPlayerMode == PLAYER_MODE_BALL || gGamePrefs.difficulty == 3)					// can only eat the bug, not the ball; cannot eat bug if in invincibility mode
 		return;
 
 	

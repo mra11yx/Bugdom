@@ -80,8 +80,8 @@ static SettingEntry gSettingEntries[] =
     {
         .ptr = &gGamePrefs.difficulty,
         .label = "Difficulty level",
-        .nChoices = 3,
-        .choices = {"Easy", "Normal", "Git Gud, Scrub!"},
+        .nChoices = 4,
+        .choices = {"Easy", "Normal", "Git Gud, Scrub!", "Total Invincibility"},
     },
     {
         .ptr = &gGamePrefs.morePower,

@@ -508,7 +508,8 @@ update:
 static void MovePlayerBug_Swim(void)
 {		
 		/* SEE IF LIQUID KILLS */
-		
+	if(gGamePrefs.difficulty == 3)
+        gLiquidCheat = true;                            //player can't drown if invincibility mode is turned on
 	if (!gLiquidCheat)
 	{
 		if (gCurrentLiquidType != LIQUID_WATER)

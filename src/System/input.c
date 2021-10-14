@@ -251,6 +251,7 @@ void UpdateInput(void)
 
 	if (GetKeyState(kKey_SwivelCameraRight))
 		gCameraControlDelta.x += 2.0f;
+
 }
 
 
