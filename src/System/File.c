@@ -1196,14 +1196,16 @@ FSSpec	spec;
 				
 				
 				/* LOAD SKELETON FILES */
-				
-				LoadASkeleton(SKELETON_TYPE_BOXERFLY);			
-				LoadASkeleton(SKELETON_TYPE_SLUG);			
-				LoadASkeleton(SKELETON_TYPE_ANT);			
+
+				LoadASkeleton(SKELETON_TYPE_BOXERFLY);
+				LoadASkeleton(SKELETON_TYPE_SLUG);
+				LoadASkeleton(SKELETON_TYPE_ANT);
+				LoadASkeleton(SKELETON_TYPE_DRAGONFLY);
 
 				/* LOAD SOUNDS */
 
 				LoadSoundBank(SOUNDBANK_LAWN);
+				LoadSoundBank(SOUNDBANK_FOREST);
 				break;
 
 
@@ -1223,16 +1225,18 @@ FSSpec	spec;
 				
 				/* LOAD SKELETON FILES */
 				
-				LoadASkeleton(SKELETON_TYPE_MOSQUITO);			
-				LoadASkeleton(SKELETON_TYPE_WATERBUG);			
-				LoadASkeleton(SKELETON_TYPE_PONDFISH);			
-				LoadASkeleton(SKELETON_TYPE_SKIPPY);			
-				LoadASkeleton(SKELETON_TYPE_SLUG);			
+				LoadASkeleton(SKELETON_TYPE_MOSQUITO);
+				LoadASkeleton(SKELETON_TYPE_WATERBUG);
+				LoadASkeleton(SKELETON_TYPE_PONDFISH);
+				LoadASkeleton(SKELETON_TYPE_SKIPPY);
+				LoadASkeleton(SKELETON_TYPE_SLUG);
+				LoadASkeleton(SKELETON_TYPE_DRAGONFLY);
 
 
 				/* LOAD SOUNDS */
 
 				LoadSoundBank(SOUNDBANK_POND);
+				LoadSoundBank(SOUNDBANK_FOREST);
 				break;
 
 
@@ -1319,17 +1323,19 @@ FSSpec	spec;
 				
 				/* LOAD SKELETON FILES */
 				
-				LoadASkeleton(SKELETON_TYPE_FIREANT);			
-				LoadASkeleton(SKELETON_TYPE_FIREFLY);			
-				LoadASkeleton(SKELETON_TYPE_CATERPILLER);	
-				LoadASkeleton(SKELETON_TYPE_SLUG);	
-				LoadASkeleton(SKELETON_TYPE_ROACH);	
-				LoadASkeleton(SKELETON_TYPE_ANT);	
+				LoadASkeleton(SKELETON_TYPE_FIREANT);
+				LoadASkeleton(SKELETON_TYPE_FIREFLY);
+				LoadASkeleton(SKELETON_TYPE_CATERPILLER);
+				LoadASkeleton(SKELETON_TYPE_SLUG);
+				LoadASkeleton(SKELETON_TYPE_ROACH);
+				LoadASkeleton(SKELETON_TYPE_ANT);
+				LoadASkeleton(SKELETON_TYPE_DRAGONFLY);
 
-				
+
 				/* LOAD SOUNDS */
 
 				LoadSoundBank(SOUNDBANK_NIGHT);
+				LoadSoundBank(SOUNDBANK_FOREST);
 				break;
 
 	

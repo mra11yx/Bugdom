@@ -597,9 +597,18 @@ QD3DSetupInputType	viewDef;
 
 		
 		/* INIT THE PLAYER */
-			
+
 	InitPlayerAtStartOfLevel();
-	InitEnemyManager();	
+
+			/* SPAWN DRAGONFLY IN LAWN LEVEL */
+
+	if (gLevelType == LEVEL_TYPE_LAWN || gLevelType == LEVEL_TYPE_POND || gLevelType == LEVEL_TYPE_NIGHT)
+	{
+		static TerrainItemEntryType sDragonFlyItem = {0};	// parm[0]=0: aim direction 0
+		AddDragonFly(&sDragonFlyItem, gMyStartX + 200, gMyStartZ);
+	}
+
+	InitEnemyManager();
 						
 			/* INIT CAMERA */
 			

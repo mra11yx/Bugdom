@@ -75,7 +75,7 @@ Boolean AddDragonFly(TerrainItemEntryType *itemPtr, long  x, long z)
 ObjNode		*newObj;
 TQ3Point3D	where;
 
-	if (gLevelType != LEVEL_TYPE_FOREST)					// verify level
+	if (gLevelType == LEVEL_TYPE_HIVE || gLevelType == LEVEL_TYPE_ANTHILL)	// verify level
 		DoFatalAlert("AddDragonFly: wrong level");
 		
 	where.x = x;
@@ -340,18 +340,18 @@ TQ3Matrix4x4	m;
 
 			/* SEE IF MAKE BAT ATTACK */
 			
-	if (gRealLevel == LEVEL_NUM_BEACH)	
-	{
-		if (gCoord.y > MAX_DRAGONFLY_FLIGHT_HEIGHT)				// see if reached max height
-			MakeBat(gCoord.x, gCoord.y + 100.0f, gCoord.z);		// create a bat to nab me
-	}
-	else
-	if (gRealLevel == LEVEL_NUM_FLIGHT)	
-	{
-		if ((gCoord.y-GetTerrainHeightAtCoord(gCoord.x,gCoord.z,FLOOR)) > MAX_DRAGONFLY_FLIGHT_HEIGHT2)						// see if reached max height
-			MakeBat(gCoord.x, gCoord.y + 100.0f, gCoord.z);		// create a bat to nab me
-	}
-	
+//	if (gRealLevel == LEVEL_NUM_BEACH)
+//	{
+//		if (gCoord.y > MAX_DRAGONFLY_FLIGHT_HEIGHT)				// see if reached max height
+//			MakeBat(gCoord.x, gCoord.y + 100.0f, gCoord.z);		// create a bat to nab me
+//	}
+//	else
+//	if (gRealLevel == LEVEL_NUM_FLIGHT)	
+//	{
+//		if ((gCoord.y-GetTerrainHeightAtCoord(gCoord.x,gCoord.z,FLOOR)) > MAX_DRAGONFLY_FLIGHT_HEIGHT2)						// see if reached max height
+//			MakeBat(gCoord.x, gCoord.y + 100.0f, gCoord.z);		// create a bat to nab me
+//	}
+//	
 
 			/*************/
 			/* CALC TILT */
