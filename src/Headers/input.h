@@ -45,6 +45,7 @@ enum
 	kKey_BuddyAttack,
 	kKey_Jump,
 	kKey_Kick,
+	kKey_Fireball,
 
 	kKey_AutoWalk,
 	kKey_Forward,

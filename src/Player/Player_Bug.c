@@ -44,6 +44,9 @@ static void	AimAtClosestBoppableObject(void);
 static void PlayerLeaveRootSwing(void);
 static void DrownInLiquid(void);
 static void TorchPlayer(void);
+static void ShootPlayerFireball(void);
+static void MovePlayerFireball(ObjNode *theNode);
+static void ExplodePlayerFireball(ObjNode *theNode);
 
 
 /****************************/
@@ -64,6 +67,7 @@ static void TorchPlayer(void);
 #define LIMB_NUM_RIGHT_TOE_TIP		3					// joint # of right toe tip
 
 #define	MY_KICK_ENEMY_DAMAGE		.4f
+#define	PLAYER_FIREBALL_SPEED		3000.0f
 
 
 /*********************/
@@ -1098,9 +1102,14 @@ Boolean	isOnGround,isSwimming;
 		{
 			if (GetNewKeyState(kKey_Kick))
 			{
-				MorphToSkeletonAnim(gPlayerObj->Skeleton, PLAYER_ANIM_KICK, 9);	
+				MorphToSkeletonAnim(gPlayerObj->Skeleton, PLAYER_ANIM_KICK, 9);
 				gPlayerObj->KickNow = false;
-			}		
+			}
+
+			if ((anim == PLAYER_ANIM_WALK) && GetNewKeyState(kKey_Fireball))
+			{
+				ShootPlayerFireball();
+			}
 		}
 	}
 			/***************/
@@ -1517,5 +1526,196 @@ new_pgroup:
 }
 
 
+#define SparkTimer	SpecialF[0]
+#define	PGroupA		SpecialL[0]
+#define	PGroupB		SpecialL[1]
+
+/******************** SHOOT PLAYER FIREBALL **********************/
+
+static void ShootPlayerFireball(void)
+{
+ObjNode		*newObj;
+TQ3Vector3D	delta;
+float		rot = gPlayerObj->Rot.y;
+
+		/* SET SPAWN COORD IN FRONT OF PLAYER AT HEAD HEIGHT */
+
+	gNewObjectDefinition.coord.x = gCoord.x + sinf(rot) * -80.0f;
+	gNewObjectDefinition.coord.y = gCoord.y + 60.0f;
+	gNewObjectDefinition.coord.z = gCoord.z + cosf(rot) * -80.0f;
+
+		/******************/
+		/* MAKE NEW EVENT */
+		/******************/
+
+	gNewObjectDefinition.genre    = EVENT_GENRE;
+	gNewObjectDefinition.flags    = 0;
+	gNewObjectDefinition.slot     = 500;
+	gNewObjectDefinition.moveCall = MovePlayerFireball;
+	newObj = MakeNewObject(&gNewObjectDefinition);
+	if (newObj == nil)
+		return;
+
+		/* SET COLLISION INFO */
+
+	newObj->CType  = CTYPE_HURTENEMY;
+	newObj->CBits  = CBITS_TOUCHABLE;
+	SetObjectCollisionBounds(newObj, 70, -70, -70, 70, 70, -70);
+
+	newObj->Health = 1.8f;
+	newObj->Damage = 0.5f;
+
+	newObj->SparkTimer = 0;
+	newObj->PGroupA    =
+	newObj->PGroupB    = -1;
+
+		/* CALC DELTA VECTOR (forward from player facing) */
+
+	delta.x = sinf(rot) * -PLAYER_FIREBALL_SPEED;
+	delta.y = 0;
+	delta.z = cosf(rot) * -PLAYER_FIREBALL_SPEED;
+	newObj->Delta = delta;
+
+	PlayEffect(EFFECT_PLASMABURST);
+}
 
 
+/********************* MOVE PLAYER FIREBALL **********************/
+
+static void MovePlayerFireball(ObjNode *theNode)
+{
+int			i;
+TQ3Vector3D	delta;
+float		fps = gFramesPerSecondFrac;
+
+		/* SEE IF BURNED OUT */
+
+	theNode->Health -= fps;
+	if (theNode->Health <= 0.0f)
+	{
+		DeleteObject(theNode);
+		return;
+	}
+
+		/****************************/
+		/* MOVE THE FIREBALL OBJECT */
+		/****************************/
+
+	GetObjectInfo(theNode);
+
+	gCoord.x += gDelta.x * fps;
+	gCoord.y += gDelta.y * fps;
+	gCoord.z += gDelta.z * fps;
+
+		/* SEE IF HIT ANYTHING */
+
+	if (gCoord.y <= GetTerrainHeightAtCoord(gCoord.x, gCoord.z, FLOOR))
+	{
+		ExplodePlayerFireball(theNode);
+		return;
+	}
+
+	if (DoSimpleBoxCollision(gCoord.y+20, gCoord.y-20, gCoord.x-20, gCoord.x+20, gCoord.z+20, gCoord.z-20, CTYPE_MISC))
+	{
+		ExplodePlayerFireball(theNode);
+		return;
+	}
+
+	UpdateObject(theNode);
+
+		/*********************/
+		/* LEAVE SPARK TRAIL */
+		/*********************/
+
+	theNode->SparkTimer -= fps;
+	if (theNode->SparkTimer <= 0.0f)
+	{
+		theNode->SparkTimer = .02f;
+
+			/*********************/
+			/* DO FIRE PARTICLES */
+			/*********************/
+
+		if (!VerifyParticleGroup(theNode->PGroupA))
+		{
+			theNode->PGroupA = NewParticleGroup(
+									PARTICLE_TYPE_FALLINGSPARKS,	// type
+									PARTICLE_FLAGS_HOT,				// flags
+									0,								// gravity
+									0,								// magnetism
+									20,								// base scale
+									-10.0f,							// decay rate
+									2.0f,							// fade rate
+									PARTICLE_TEXTURE_BLUEFIRE);		// texture
+		}
+
+		if (theNode->PGroupA != -1)
+		{
+			delta.x =
+			delta.y =
+			delta.z = 0;
+			AddParticleToGroup(theNode->PGroupA, &gCoord, &delta, RandomFloat()*2.0f + 1.0f, FULL_ALPHA);
+		}
+
+			/**********************/
+			/* DO SPARK PARTICLES */
+			/**********************/
+
+		if (!VerifyParticleGroup(theNode->PGroupB))
+		{
+			theNode->PGroupB = NewParticleGroup(
+									PARTICLE_TYPE_FALLINGSPARKS,	// type
+									PARTICLE_FLAGS_HOT,				// flags
+									900,							// gravity
+									0,								// magnetism
+									15,								// base scale
+									1.6f,							// decay rate
+									0,								// fade rate
+									PARTICLE_TEXTURE_ORANGESPOT);	// texture
+		}
+
+		if (theNode->PGroupB != -1)
+		{
+			for (i = 0; i < 3; i++)
+			{
+				delta.x = (RandomFloat()-.5f) * 900.0f;
+				delta.y = (RandomFloat()-.5f) * 900.0f;
+				delta.z = (RandomFloat()-.5f) * 900.0f;
+				AddParticleToGroup(theNode->PGroupB, &gCoord, &delta, RandomFloat()*2.0f + 2.0f, FULL_ALPHA);
+			}
+		}
+	}
+}
+
+
+/****************** EXPLODE PLAYER FIREBALL ***********************/
+
+static void ExplodePlayerFireball(ObjNode *theNode)
+{
+TQ3Vector3D	delta;
+
+	PlayEffect_Parms3D(EFFECT_PLASMAEXPLODE, &theNode->Coord, kMiddleC-4, 6.0);
+
+	int32_t pg = NewParticleGroup(
+						PARTICLE_TYPE_FALLINGSPARKS,	// type
+						PARTICLE_FLAGS_BOUNCE|PARTICLE_FLAGS_HOT,	// flags
+						400,						// gravity
+						0,							// magnetism
+						40,							// base scale
+						0,							// decay rate
+						.7f,						// fade rate
+						PARTICLE_TEXTURE_BLUEFIRE);	// texture
+
+	if (pg != -1)
+	{
+		for (int i = 0; i < 60; i++)
+		{
+			delta.x = (RandomFloat()-.5f) * 1400.0f;
+			delta.y = (RandomFloat()-.5f) * 1400.0f;
+			delta.z = (RandomFloat()-.5f) * 1400.0f;
+			AddParticleToGroup(pg, &theNode->Coord, &delta, RandomFloat() + 1.0f, FULL_ALPHA);
+		}
+	}
+
+	DeleteObject(theNode);
+}
