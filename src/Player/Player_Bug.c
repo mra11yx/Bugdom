@@ -1106,7 +1106,7 @@ Boolean	isOnGround,isSwimming;
 				gPlayerObj->KickNow = false;
 			}
 
-			if ((anim == PLAYER_ANIM_WALK) && GetNewKeyState(kKey_Fireball))
+			if (GetNewKeyState(kKey_Fireball))
 			{
 				ShootPlayerFireball();
 			}
@@ -1541,7 +1541,7 @@ float		rot = gPlayerObj->Rot.y;
 		/* SET SPAWN COORD IN FRONT OF PLAYER AT HEAD HEIGHT */
 
 	gNewObjectDefinition.coord.x = gCoord.x + sinf(rot) * -80.0f;
-	gNewObjectDefinition.coord.y = gCoord.y + 60.0f;
+	gNewObjectDefinition.coord.y = gCoord.y + PLAYER_BUG_HEADOFFSET;
 	gNewObjectDefinition.coord.z = gCoord.z + cosf(rot) * -80.0f;
 
 		/******************/
@@ -1617,6 +1617,57 @@ float		fps = gFramesPerSecondFrac;
 
 	if (DoSimpleBoxCollision(gCoord.y+20, gCoord.y-20, gCoord.x-20, gCoord.x+20, gCoord.z+20, gCoord.z-20, CTYPE_MISC))
 	{
+		ExplodePlayerFireball(theNode);
+		return;
+	}
+
+			/* SEE IF HIT AN ENEMY - KNOCK THEM BACK */
+
+	if (DoSimpleBoxCollision(gCoord.y+70, gCoord.y-70, gCoord.x-70, gCoord.x+70, gCoord.z+70, gCoord.z-70, CTYPE_ENEMY))
+	{
+		float fdx = gDelta.x * 0.8f;
+		float fdy = gDelta.y * 0.8f + 250.0f;
+		float fdz = gDelta.z * 0.8f;
+
+		for (int ei = 0; ei < gNumCollisions; ei++)
+		{
+			ObjNode *enemy = gCollisionList[ei].objectPtr;
+			if (enemy->Genre != SKELETON_GENRE)
+				continue;
+			switch (enemy->Type)
+			{
+				case SKELETON_TYPE_ANT:
+					KnockAntOnButt(enemy, fdx, fdy, fdz, .5f);
+					break;
+				case SKELETON_TYPE_FIREANT:
+					KnockFireAntOnButt(enemy, fdx, fdy, fdz);
+					break;
+				case SKELETON_TYPE_BOXERFLY:
+					KillBoxerFly(enemy, fdx, fdy, fdz);
+					break;
+				case SKELETON_TYPE_MOSQUITO:
+					KillMosquito(enemy, fdx, fdy, fdz);
+					break;
+				case SKELETON_TYPE_SPIDER:
+					KnockSpiderOnButt(enemy, fdx, fdy, fdz, .5f);
+					break;
+				case SKELETON_TYPE_FLYINGBEE:
+					KillFlyingBee(enemy, fdx, fdy, fdz);
+					break;
+				case SKELETON_TYPE_QUEENBEE:
+					KnockQueenBeeOnButt(enemy, fdx, fdz, .5f);
+					break;
+				case SKELETON_TYPE_ROACH:
+					KnockRoachOnButt(enemy, fdx, fdy, fdz, .5f);
+					break;
+				case SKELETON_TYPE_LARVA:
+					KillLarva(enemy);
+					break;
+				case SKELETON_TYPE_KINGANT:
+					KnockKingAntOnButt(enemy, fdx, fdz, .5f);
+					break;
+			}
+		}
 		ExplodePlayerFireball(theNode);
 		return;
 	}
