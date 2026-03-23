@@ -152,6 +152,9 @@ SplinePointType	*points;
 			type = itemPtr->type;								// get item type
 			GAME_ASSERT(type <= MAX_SPLINE_ITEM_NUM);
 
+			if (gRealLevel == LEVEL_NUM_HELL && (gIsEnemyItem[type] || type == MAP_ITEM_TREE || type == MAP_ITEM_STUMP))	// skip enemies, trees, and stumps in Hell
+				continue;
+
 			flag = gSplineItemPrimeRoutines[type](s,itemPtr); 	// call item's Prime routine
 			if (flag)
 				itemPtr->flags |= ITEM_FLAGS_INUSE;				// set in-use flag	

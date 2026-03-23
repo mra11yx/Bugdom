@@ -50,6 +50,7 @@ const char* kLevelNames[NUM_LEVELS] =
 	"Night Attack",
 	"Ant Hill",
 	"Ant King",
+	"Hell",
 };
 
 static const TQ3Point2D gFloppyPositions[NUM_SAVE_FILES] =

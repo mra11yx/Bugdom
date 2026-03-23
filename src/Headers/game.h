@@ -112,6 +112,7 @@ extern	ObjNode						*gPrevRope;
 extern	ObjNode						*gSaveNo;
 extern	ObjNode						*gSaveYes;
 extern	ObjNode						*gTheQueen;
+extern	int							gNumQueensAlive;
 extern	PrefsType					gGamePrefs;
 extern	QD3DSetupOutputType			*gGameViewInfoPtr;
 extern	RenderStats					gRenderStats;

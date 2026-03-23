@@ -26,6 +26,9 @@ static void  MoveQueenBee_Fly(ObjNode *theNode);
 static void ShootSpit(ObjNode *bee);
 static void MoveQueenSpit(ObjNode *theNode);
 static void  MoveQueenBee_OnButt(ObjNode *theNode);
+static void ShootQueenFireball(ObjNode *bee);
+static void MoveQueenFireball(ObjNode *theNode);
+static void ExplodeQueenFireball(ObjNode *theNode);
 
 
 /****************************/
@@ -79,8 +82,9 @@ enum
 /*********************/
 
 ObjNode		*gTheQueen;
+int			gNumQueensAlive = 0;
 
-static short 		gNumQueenBases,gCurrentQueenBase;
+static short 		gNumQueenBases;
 static TQ3Point2D	gQueenBase[MAX_QUEEN_BASES];
 static Byte			gQueenBaseID[MAX_QUEEN_BASES];
 static TQ3Point3D	gMidPoint,gEndPoint;
@@ -92,6 +96,7 @@ static TQ3Point3D	gMidPoint,gEndPoint;
 #define	SpitNowFlag	Flag[0]
 #define	CanSpit		Flag[1]
 #define	DeathTimer	SpecialF[2]
+#define	CurrentBase	SpecialL[0]		// per-queen patrol base index
 
 #define	HasSpawned	Flag[0]
 #define	PollenTimer	SpecialF[1]
@@ -100,6 +105,11 @@ static TQ3Point3D	gMidPoint,gEndPoint;
 #define	WobbleZ		SpecialF[4]
 #define	WobbleBase	SpecialF[5]
 
+// Fireball-specific (used on fireball ObjNode, not queen bee)
+#define	SparkTimer	SpecialF[0]
+#define	PGroupA		SpecialL[0]
+#define	PGroupB		SpecialL[1]
+
 /************************ ADD QUEENBEE ENEMY *************************/
 //
 // A skeleton character
@@ -107,58 +117,52 @@ static TQ3Point3D	gMidPoint,gEndPoint;
 // NOTE: the parm[3] bits are used as special Queen Bee flags
 //
 
-Boolean AddEnemy_QueenBee(TerrainItemEntryType *itemPtr, long x, long z)
+static ObjNode *SpawnOneQueen(TerrainItemEntryType *itemPtr, long x, long z, short startBase, float waitDelay)
 {
 ObjNode	*newObj;
 
-	if (itemPtr->parm[0] != 0)			// queen is at base #0
-		return(true);
-	
-			/* SCAN ITEM LIST FOR QUEEN BASE OBJECTS */
-
-	FindQueenBases();	
-
-				/*******************************/
-				/* MAKE DEFAULT SKELETON ENEMY */
-				/*******************************/
-	
-	gCurrentQueenBase = 0;
-	x = gQueenBase[0].x;										// start at 1st base
-	z = gQueenBase[0].y;
-	
-	gTheQueen = newObj = MakeEnemySkeleton(SKELETON_TYPE_QUEENBEE,x,z, QUEENBEE_SCALE);
+	gNumQueensAlive++;
+	gTheQueen = newObj = MakeEnemySkeleton(SKELETON_TYPE_QUEENBEE, x, z, QUEENBEE_SCALE);
 	if (newObj == nil)
-		return(false);
+		return(nil);
 	newObj->TerrainItemPtr = itemPtr;
 
 	SetSkeletonAnim(newObj->Skeleton, QUEENBEE_ANIM_WAIT);
-	
 
-				/*******************/
-				/* SET BETTER INFO */
-				/*******************/
-			
-	newObj->Coord.y 	-= QUEENBEE_FOOT_OFFSET;			
-	newObj->MoveCall 	= MoveQueenBee;							// set move call
-	newObj->Health 		= QUEENBEE_HEALTH;						// LOTS of health!
-	newObj->Damage 		= 0;
-	newObj->Kind 		= ENEMY_KIND_QUEENBEE;
-	
-	newObj->WaitTimer	= 3;
-	
-	
-				/* SET COLLISION INFO */
-				
-	SetObjectCollisionBounds(newObj, 100,QUEENBEE_FOOT_OFFSET,-130,130,130,-130);
+	newObj->Coord.y		= GetTerrainHeightAtCoord(x, z, FLOOR) - QUEENBEE_FOOT_OFFSET;
+	newObj->MoveCall	= MoveQueenBee;
+	newObj->Health		= QUEENBEE_HEALTH;
+	newObj->Damage		= 0;
+	newObj->Kind		= ENEMY_KIND_QUEENBEE;
+	newObj->WaitTimer	= waitDelay;
+	newObj->CurrentBase	= startBase;
 
+	SetObjectCollisionBounds(newObj, 100, QUEENBEE_FOOT_OFFSET, -130, 130, 130, -130);
+	AttachShadowToObject(newObj, 13, 13, false);
 
-				/* MAKE SHADOW */
-				
-	AttachShadowToObject(newObj, 13, 13,false);
-	
-		
 	gNumEnemies++;
 	gNumEnemyOfKind[ENEMY_KIND_QUEENBEE]++;
+	return(newObj);
+}
+
+
+Boolean AddEnemy_QueenBee(TerrainItemEntryType *itemPtr, long x, long z)
+{
+	if (itemPtr->parm[0] != 0)			// only base #0 triggers queen spawn
+		return(true);
+
+			/* SCAN ITEM LIST FOR QUEEN BASE OBJECTS */
+
+	FindQueenBases();
+
+	x = gQueenBase[0].x;										// start at 1st base
+	z = gQueenBase[0].y;
+
+	SpawnOneQueen(itemPtr, x - 200, z, 0, 3.0f);				// queen 1
+
+	if (gRealLevel == LEVEL_NUM_HELL)
+		SpawnOneQueen(itemPtr, x + 200, z, 1, 5.0f);			// queen 2 (Hell only), staggered entry
+
 	return(true);
 }
 
@@ -251,9 +255,12 @@ u_short		b;
 	{
 		if (theNode->SpitNowFlag)
 		{
-			theNode->SpitNowFlag = false;		
+			theNode->SpitNowFlag = false;
 			theNode->CanSpit = false;
-			ShootSpit(theNode);	
+			if (gRealLevel == LEVEL_NUM_HELL)
+				ShootQueenFireball(theNode);
+			else
+				ShootSpit(theNode);
 		}		
 	}
 
@@ -266,12 +273,12 @@ u_short		b;
 	{
 				/* PICK NEXT BASE TO FLY TO */
 				
-		if (++gCurrentQueenBase >= gNumQueenBases)				// inc base # and see if wrap
-			gCurrentQueenBase = 0;
+		if (++theNode->CurrentBase >= gNumQueenBases)				// inc base # and see if wrap
+			theNode->CurrentBase = 0;
 			
 		for (b = 0; b < gNumQueenBases; b++)					// find base # in list
 		{
-			if (gQueenBaseID[b] == gCurrentQueenBase)
+			if (gQueenBaseID[b] == theNode->CurrentBase)
 				break;		
 		}
 			
@@ -450,7 +457,10 @@ float	fps = gFramesPerSecondFrac;
 
 	theNode->DeathTimer -= fps;
 	if (theNode->DeathTimer <= 0.0f)
-		gAreaCompleted = true;
+	{
+		if (--gNumQueensAlive <= 0)
+			gAreaCompleted = true;
+	}
 
 
 				/* MOVE IT */
@@ -720,7 +730,7 @@ static const TQ3Point3D off = {0,-25,-55};
 
 	FindCoordOnJoint(bee, QUEENBEE_JOINT_HEAD, &off, &gNewObjectDefinition.coord);
 		
-	gNewObjectDefinition.group 		= MODEL_GROUP_LEVELSPECIFIC;	
+	gNewObjectDefinition.group 		= MODEL_GROUP_LEVELSPECIFIC;
 	gNewObjectDefinition.type 		= HIVE_MObjType_HoneyBlob;
 	gNewObjectDefinition.flags 		= 0;
 	gNewObjectDefinition.slot 		= 550;
@@ -851,10 +861,162 @@ float	base;
 	
 			/* UPDATE */
 
-	UpdateObject(theNode);	
+	UpdateObject(theNode);
 }
 
 
+#pragma mark -
+
+/******************* SHOOT QUEEN FIREBALL (Hell level) ***********************/
+
+static void ShootQueenFireball(ObjNode *bee)
+{
+ObjNode		*newObj;
+TQ3Vector3D	delta;
+static const TQ3Point3D off = {0,-25,-55};
+
+	FindCoordOnJoint(bee, QUEENBEE_JOINT_HEAD, &off, &gNewObjectDefinition.coord);
+
+	gNewObjectDefinition.genre    = EVENT_GENRE;
+	gNewObjectDefinition.flags    = 0;
+	gNewObjectDefinition.slot     = 500;
+	gNewObjectDefinition.moveCall = MoveQueenFireball;
+	newObj = MakeNewObject(&gNewObjectDefinition);
+	if (newObj == nil)
+		return;
+
+	newObj->CType  = CTYPE_HURTME;
+	newObj->CBits  = CBITS_TOUCHABLE;
+	SetObjectCollisionBounds(newObj, 70, -70, -70, 70, 70, -70);
+
+	newObj->Damage = .3f;
+
+	newObj->SparkTimer = 0;
+	newObj->PGroupA    =
+	newObj->PGroupB    = -1;
+
+		/* AIM AT PLAYER */
+
+	delta.x = gMyCoord.x - bee->Coord.x;
+	delta.y = (gMyCoord.y + 50.0f) - bee->Coord.y;
+	delta.z = gMyCoord.z - bee->Coord.z;
+	FastNormalizeVector(delta.x, delta.y, delta.z, &delta);
+	delta.x *= SPIT_SPEED * 2.0f;
+	delta.y *= SPIT_SPEED * 2.0f;
+	delta.z *= SPIT_SPEED * 2.0f;
+	newObj->Delta = delta;
+
+	PlayEffect_Parms3D(EFFECT_PLASMABURST, &newObj->Coord, kMiddleC, 2.0);
+}
+
+
+/********************* MOVE QUEEN FIREBALL **********************/
+
+static void MoveQueenFireball(ObjNode *theNode)
+{
+int			i;
+TQ3Vector3D	delta;
+float		fps = gFramesPerSecondFrac;
+
+	GetObjectInfo(theNode);
+
+	gCoord.x += gDelta.x * fps;
+	gCoord.y += gDelta.y * fps;
+	gCoord.z += gDelta.z * fps;
+
+	if (gCoord.y <= GetTerrainHeightAtCoord(gCoord.x, gCoord.z, FLOOR))
+	{
+		ExplodeQueenFireball(theNode);
+		return;
+	}
+
+	if (DoSimpleBoxCollision(gCoord.y+20, gCoord.y-20, gCoord.x-20, gCoord.x+20, gCoord.z+20, gCoord.z-20, CTYPE_MISC|CTYPE_PLAYER))
+	{
+		ExplodeQueenFireball(theNode);
+		return;
+	}
+
+	UpdateObject(theNode);
+
+	theNode->SparkTimer -= fps;
+	if (theNode->SparkTimer <= 0.0f)
+	{
+		theNode->SparkTimer = .03f;
+
+		if (!VerifyParticleGroup(theNode->PGroupA))
+		{
+			theNode->PGroupA = NewParticleGroup(
+								PARTICLE_TYPE_FALLINGSPARKS,
+								PARTICLE_FLAGS_HOT,
+								0,
+								0,
+								10,
+								-10.0f,
+								2.0f,
+								PARTICLE_TEXTURE_BLUEFIRE);
+		}
+		if (theNode->PGroupA != -1)
+		{
+			delta.x = delta.y = delta.z = 0;
+			AddParticleToGroup(theNode->PGroupA, &gCoord, &delta, RandomFloat()*2.0f + 1.0f, FULL_ALPHA);
+		}
+
+		if (theNode->PGroupB == -1)
+		{
+			theNode->PGroupB = NewParticleGroup(
+								PARTICLE_TYPE_FALLINGSPARKS,
+								PARTICLE_FLAGS_HOT,
+								900,
+								0,
+								10,
+								1.6f,
+								0,
+								PARTICLE_TEXTURE_WHITE);
+		}
+		if (theNode->PGroupB != -1)
+		{
+			for (i = 0; i < 3; i++)
+			{
+				delta.x = (RandomFloat()-.5f) * 700.0f;
+				delta.y = (RandomFloat()-.5f) * 700.0f;
+				delta.z = (RandomFloat()-.5f) * 700.0f;
+				AddParticleToGroup(theNode->PGroupB, &gCoord, &delta, RandomFloat()*2.0f + 2.0f, FULL_ALPHA);
+			}
+		}
+	}
+}
+
+
+/****************** EXPLODE QUEEN FIREBALL ***********************/
+
+static void ExplodeQueenFireball(ObjNode *theNode)
+{
+TQ3Vector3D	delta;
+
+	int32_t pg = NewParticleGroup(
+					PARTICLE_TYPE_FALLINGSPARKS,
+					PARTICLE_FLAGS_BOUNCE|PARTICLE_FLAGS_HURTPLAYER|PARTICLE_FLAGS_HOT,
+					400,
+					0,
+					40,
+					0,
+					.7f,
+					PARTICLE_TEXTURE_BLUEFIRE);
+
+	if (pg != -1)
+	{
+		for (int i = 0; i < 60; i++)
+		{
+			delta.x = (RandomFloat()-.5f) * 1400.0f;
+			delta.y = (RandomFloat()-.5f) * 1400.0f;
+			delta.z = (RandomFloat()-.5f) * 1400.0f;
+			AddParticleToGroup(pg, &theNode->Coord, &delta, RandomFloat() + 1.0f, FULL_ALPHA);
+		}
+	}
+
+	PlayEffect_Parms3D(EFFECT_PLASMAEXPLODE, &theNode->Coord, kMiddleC-4, 6.0);
+	DeleteObject(theNode);
+}
 
 
 

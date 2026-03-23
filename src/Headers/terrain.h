@@ -7,6 +7,8 @@
 #include "qd3d_support.h"
 
 #define	MAP_ITEM_MYSTARTCOORD		0				// map item # for my start coords
+#define	MAP_ITEM_TREE				17
+#define	MAP_ITEM_STUMP				51
 #define	MAP_ITEM_FIREFLYTARGET		42				// map item # for firefly target
 #define	MAP_ITEM_QUEENBEEBASE		49
 #define	MAP_ITEM_LADYBUG			1
@@ -170,6 +172,7 @@ void InitCurrentScrollSettings(void);
 
 extern 	void BuildTerrainItemList(void);
 extern 	void ScanForPlayfieldItems(long top, long bottom, long left, long right);
+extern	const Boolean gIsEnemyItem[];
 
 Boolean IsPositionOutOfRange(float x, float z);
 Boolean IsPositionOutOfRange_Far(float x, float z, float range);

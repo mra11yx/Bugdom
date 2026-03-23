@@ -54,6 +54,7 @@ static LevelType	gLevelTable[NUM_LEVELS] =
 	{ LEVEL_TYPE_NIGHT,		0,	false },			// 7: night
 	{ LEVEL_TYPE_ANTHILL,	0,	false },			// 8: ant hill
 	{ LEVEL_TYPE_ANTHILL,	1,	true },				// 9: ant king
+	{ LEVEL_TYPE_FOREST,	2,	false },			// 10: hell
 };
 
 Boolean		gIsInGame = false;
@@ -406,7 +407,7 @@ float fps;
 
 		if (gAreaCompleted)
 		{
-			if (gRealLevel == LEVEL_NUM_ANTKING)		// if completed Ant King, then I won!
+			if (gRealLevel == LEVEL_NUM_ANTKING || gRealLevel == LEVEL_NUM_HELL)		// if completed Ant King or Hell, then I won!
 				gWonGameFlag = true;
 			break;
 		}

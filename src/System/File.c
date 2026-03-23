@@ -1247,8 +1247,10 @@ FSSpec	spec;
 		case	LEVEL_TYPE_FOREST:
 				if (gAreaNum == 0)
 					FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Terrain:Beach.ter", &spec);
-				else
+				else if (gAreaNum == 1)
 					FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Terrain:Flight.ter", &spec);
+				else
+					FSMakeFSSpec(gDataSpec.vRefNum, gDataSpec.parID, ":Terrain:Hell.ter", &spec);
 				LoadPlayfield(&spec);
 
 				/* LOAD MODELS */
@@ -1265,8 +1267,11 @@ FSSpec	spec;
 				LoadASkeleton(SKELETON_TYPE_CATERPILLER);	
 				LoadASkeleton(SKELETON_TYPE_BAT);	
 				LoadASkeleton(SKELETON_TYPE_FLYINGBEE);			
-				LoadASkeleton(SKELETON_TYPE_ANT);			
-				
+				LoadASkeleton(SKELETON_TYPE_ANT);
+
+				if (gAreaNum == 2)								// Hell needs queen bee
+					LoadASkeleton(SKELETON_TYPE_QUEENBEE);
+
 				/* LOAD SOUNDS */
 
 				LoadSoundBank(SOUNDBANK_FOREST);

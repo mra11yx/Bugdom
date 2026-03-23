@@ -112,6 +112,74 @@ static Boolean (*gTerrainItemAddRoutines[])(TerrainItemEntryType *, long, long) 
 		AddKingWaterPipe,					// 63: King Water Pipe
 };
 
+const Boolean gIsEnemyItem[] =
+{
+		false,	// 0:  My Start Coords
+		false,	// 1:  LadyBug Bonus
+		false,	// 2:  Nut
+		true,	// 3:  ENEMY: BOXERFLY
+		false,	// 4:  Rock
+		false,	// 5:  Clover
+		false,	// 6:  Grass
+		false,	// 7:  Weed
+		true,	// 8:  Slug enemy
+		true,	// 9:  ENEMY: Ant
+		false,	// 10: Sunflower
+		false,	// 11: Cosmo
+		false,	// 12: Poppy
+		false,	// 13: Wall End
+		false,	// 14: Water Patch
+		true,	// 15: ENEMY: FireAnt
+		false,	// 16: WaterBug
+		false,	// 17: Tree
+		false,	// 18: Dragonfly
+		false,	// 19: Cat Tail
+		false,	// 20: Duck Weed
+		false,	// 21: Lily Flower
+		false,	// 22: Lily Pad
+		false,	// 23: Pond Grass
+		false,	// 24: Reed
+		true,	// 25: ENEMY: Pond Fish
+		false,	// 26: Honeycomb platform
+		false,	// 27: Honey Patch
+		false,	// 28: Firecracker
+		false,	// 29: Detonator
+		false,	// 30: Hive Door
+		true,	// 31: ENEMY: Mosquito
+		false,	// 32: Checkpoint
+		false,	// 33: Lawn Door
+		false,	// 34: Dock
+		false,	// 35: Foot
+		true,	// 36: ENEMY: SPIDER
+		true,	// 37: ENEMY: CATERPILLER
+		false,	// 38: Firefly
+		false,	// 39: Exit Log
+		false,	// 40: Root swing
+		false,	// 41: Thorn Bush
+		false,	// 42: FireFly Target Location
+		false,	// 43: Fire Wall
+		false,	// 44: Water Valve
+		false,	// 45: Honey Tube
+		true,	// 46: ENEMY: LARVA
+		true,	// 47: ENEMY: FLYING BEE
+		true,	// 48: ENEMY: WORKER BEE
+		true,	// 49: ENEMY: QUEEN BEE
+		false,	// 50: Rock Ledge
+		false,	// 51: Stump
+		false,	// 52: Rolling Boulder
+		true,	// 53: ENEMY: ROACH
+		true,	// 54: ENEMY: SKIPPY
+		false,	// 55: Slime Patch
+		false,	// 56: Lava Patch
+		false,	// 57: Bent Ant Pipe
+		false,	// 58: Horiz Ant Pipe
+		true,	// 59: ENEMY: KING ANT
+		false,	// 60: Water Faucet
+		false,	// 61: Wooden Post
+		false,	// 62: Floor Spike
+		false,	// 63: King Water Pipe
+};
+
 
 /********************* BUILD TERRAIN ITEM LIST ***********************/
 //
@@ -275,7 +343,10 @@ long			realX,realZ;
 			realX = itemPtr->x * MAP2UNIT_VALUE;				// calc & pass 3-space coords
 			realZ = itemPtr->y * MAP2UNIT_VALUE;
 	
-			flag = gTerrainItemAddRoutines[type](itemPtr,realX, realZ); // call item's ADD routine
+			if (gRealLevel == LEVEL_NUM_HELL && (gIsEnemyItem[type] || type == MAP_ITEM_TREE || type == MAP_ITEM_STUMP) && type != MAP_ITEM_QUEENBEEBASE)	// skip enemies, trees, and stumps in Hell (except queen bees)
+			goto skip;
+
+		flag = gTerrainItemAddRoutines[type](itemPtr,realX, realZ); // call item's ADD routine
 			if (flag)
 				itemPtr->flags |= ITEM_FLAGS_INUSE;				// set in-use flag
 				

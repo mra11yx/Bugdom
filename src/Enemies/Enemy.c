@@ -40,6 +40,7 @@ void InitEnemyManager(void)
 short	i;
 
 	gTheQueen = nil;
+	gNumQueensAlive = 0;
 	gAntKingObj = nil;
 	gNumEnemies = 0;
 
